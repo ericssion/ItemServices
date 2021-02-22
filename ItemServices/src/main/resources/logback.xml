@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	 <!--  For Development box pls use this value -->
+<!--  <property name="LOG_HOME" value="D:\one_network\logs "/> -->
+
+
+  <property name="LOG_HOME" value="./logs" />
+  
+  
+      <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- By default, encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+        	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        
+    </appender>
+  
+  <appender name="ROLLIN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_HOME}/item-service.log</file>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				<!--%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{35} - %msg%n -->
+				%d %p %C{1.} [%t] %m%n
+			</Pattern>
+	</encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+        <!-- daily rollover -->
+         <fileNamePattern>${LOG_HOME}/archived/item-service_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+        <timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>50MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="STDOUT" />
+  </root>
+  
+  
+  <logger name="com.item" level="info" >
+		<appender-ref ref="ROLLIN" />
+		<appender-ref ref="STDOUT" />
+  </logger>
+
+</configuration>
+
