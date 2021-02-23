@@ -3,8 +3,12 @@ package com.item.service;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.mail.MessagingException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
@@ -22,8 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.item.bean.MailBean;
 import com.item.request.JsonResponse;
 import com.item.request.Request;
 import com.item.utils.FileUtils;
@@ -36,7 +42,10 @@ import com.item.utils.PropertyUtils;
 public class ProcessItems {
 
 	private static Logger log = LoggerFactory.getLogger(ProcessItems.class);
-	
+	int sucessRcdCnt=0;
+	 int errorRcdcnt=0;
+	 Map<String, String> errorMap=new HashMap<String, String>();
+	 
 
  /**
   * Invoke.
@@ -44,38 +53,40 @@ public class ProcessItems {
  public void invoke(){
 	 
 	 log.debug("ENTERING invoke method");
-	List <Request> requestList  = FileUtils.loadFiles();
+	 Map<String,List<Request>> requestMap  = FileUtils.loadFiles();
 	 
-	/*
-	 * requestList.parallelStream().forEach(s->{
-	 * 
-	 * ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-	 * String json=null; try { json = ow.writeValueAsString(s);
-	 * log.info("request : "+json); } catch (JsonProcessingException e) {
-	 * log.error("unable to convert  the request to String :  "+e.getMessage(),e); }
-	 * postJson(s);
-	 * 
-	 * });
-	 */
-	
-	
-	
-	if(requestList.size()>0) {
-		 
-		for (Iterator<Request> iterator = requestList.iterator(); iterator.hasNext();) {
-			Request request = (Request) iterator.next();
-			 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-			 String json=null;
-				try {
-					json = ow.writeValueAsString(request);
-					log.info("request : "+json);
-				} catch (JsonProcessingException e) {
-					log.error("unable to convert  the request to String :  "+e.getMessage(),e);
+	 requestMap.forEach((fileName, requestList) -> {
+		 if(requestList.size()>0) {
+			 
+				for (Iterator<Request> iterator = requestList.iterator(); iterator.hasNext();) {
+					Request request = (Request) iterator.next();
+					 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+					 String json=null;
+						try {
+							json = ow.writeValueAsString(request);
+							log.info("request : "+json);
+						} catch (JsonProcessingException e) {
+							log.error("unable to convert  the request to String :  "+e.getMessage(),e);
+						}
+					
+					postJson(request);
 				}
-			
-			postJson(request);
-		}
-	 }
+		
+			    MailBean mailBean=new MailBean();
+		        mailBean.setErrorMap(errorMap);
+		        mailBean.setSucessRcdCnt(sucessRcdCnt);
+		        mailBean.setErrorRcdcnt(errorRcdcnt);
+		        mailBean.setFileName(fileName);
+		     
+		         try {
+		 			MailMethods.sendStatusMail(mailBean);
+		 		} catch (MessagingException e) {
+		 			// TODO Auto-generated catch block
+		 			e.printStackTrace();
+		 		} 
+		 }
+		});
+	 
  }
  
  
@@ -132,9 +143,16 @@ public class ProcessItems {
              JsonResponse jsonResponse = mapper.readValue(result, JsonResponse.class);
              log.info("got Response : "+result);
              if(jsonResponse.getSuccess().equalsIgnoreCase("false")) {
-            	 sendMail("Request failed ","Sent Request : "+json+"Response recieved : "+jsonResponse.getMessage());
-             }   
-         }
+            	 
+            	 ObjectMapper objectMapper = new ObjectMapper();
+            	    JsonNode jsonNode = objectMapper.readValue(json, JsonNode.class);
+            	 
+            	 errorMap.put(jsonNode.toString(),result);
+            	 ++errorRcdcnt; 
+             }else if(jsonResponse.getSuccess().equalsIgnoreCase("true")) {
+            	 ++sucessRcdCnt;
+             }
+		 }
 	 }catch(IOException e){
 		 log.error("failed to parse the response "+e.getMessage(),e); 
          sendMail("recieved unknown Response ","recieved Response  : "+result);

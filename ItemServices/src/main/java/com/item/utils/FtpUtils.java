@@ -17,6 +17,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.item.bean.FileBean;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -28,6 +29,7 @@ public class FtpUtils {
   private static Logger log = LoggerFactory.getLogger(FtpUtils.class);
   private static JSch stpsClient;
   private static FTPClient ftpClient;
+  
 
   private static JSch loadSftpProperty() {
 
@@ -55,12 +57,13 @@ public class FtpUtils {
     return ftpClient;
   }
 
-  public static List < String > getFilesFromFtpServer() {
+  public static List < FileBean > getFilesFromFtpServer() {
 	  log.debug("entered into FtpUtils.getFilesFromFtpServer()");
 	  
     loadFtpProperty();
     int reply;
-    List < String > fileList = new ArrayList < String > ();
+    
+    List < FileBean > fileList = new ArrayList < FileBean > ();
 
     try {
      log.info("Connecting to  server " + PropertyUtils.getRemoteServer() + "....");
@@ -106,7 +109,10 @@ public class FtpUtils {
           //file copy success add to file list and  delete the file
 			  if (success) { 
 				  log.info("copying sucessful");
-				  fileList.add(PropertyUtils.getBackupDir() +ftpFile.getName());
+				  FileBean fileBean=new FileBean();
+				  fileBean.setFilename(ftpFile.getName());
+				  fileBean.setFilepath(PropertyUtils.getBackupDir() +ftpFile.getName());
+				  fileList.add(fileBean);
 			  Boolean deletestatus= ftpClient.deleteFile(PropertyUtils.getRemoteDirectory()+ftpFile.getName());
 			  if(deletestatus) {
 			  log.info("delete sucessful");

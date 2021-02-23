@@ -121,9 +121,14 @@ public final class PropertyUtils {
 		return props.getProperty("items.url");
 	}
 	
-	public static String getMailSubject() {
+	public static String getMailStatusSubject() {
 		Properties props= 	PropertyUtils.loadProperty();
-		return props.getProperty("mail.subject");
+		return props.getProperty("mail.status");
+	}
+	
+	public static String getMailFatalSubject() {
+		Properties props= 	PropertyUtils.loadProperty();
+		return props.getProperty("mail.fatal");
 	}
 	
 	
