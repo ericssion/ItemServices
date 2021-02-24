@@ -17,7 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +96,8 @@ public class FileUtils {
 	
 	public static void createFile(MailBean mailBean) {
 		
-		filePath = FileSystems.getDefault().getPath("").toAbsolutePath().toString()+"\\person.log";
+		String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+		filePath = FileSystems.getDefault().getPath("").toAbsolutePath().toString()+"\\KaiNexus_Error(s)_"+timeStamp+".log";
 		
 		StringBuffer buffer=new StringBuffer();
 		

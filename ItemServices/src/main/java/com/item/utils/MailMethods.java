@@ -73,7 +73,7 @@ public final class MailMethods
 		String msg="The KaiNexus Person API returned errors for the batch initiated "+timeStamp+".\r\n"
 		+ "Input file: "+mailBean.getFileName()+"\r\n"
 		+ "Records Created or Updated: "+mailBean.getSucessRcdCnt()+"\r\n"
-		+ "Records with Errors:"+mailBean.getErrorRcdcnt()+"\r\n"
+		+ "Records with Errors: "+mailBean.getErrorRcdcnt()+"\r\n"
 		+ "Error List: See the attached error log file";
 		return msg;
 	}
