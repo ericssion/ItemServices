@@ -59,17 +59,8 @@ public class ProcessItems {
 		 if(requestList.size()>0) {
 			 
 				for (Iterator<String> iterator = requestList.iterator(); iterator.hasNext();) {
-					String request = iterator.next();
-					 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-					 String json=null;
-						try {
-							json = ow.writeValueAsString(request);
-							log.info("request : "+json);
-							System.out.println("request : "+json);
-						} catch (JsonProcessingException e) {
-							log.error("unable to convert  the request to String :  "+e.getMessage(),e);
-						}
-					
+					String request = iterator.next();					 
+					log.info("request : "+request);
 					postJson(request);
 				}
 		
@@ -80,7 +71,7 @@ public class ProcessItems {
 		        mailBean.setFileName(fileName);
 		     
 		         try {
-		 			MailMethods.sendGMail(mailBean);
+		 			MailMethods.sendStatusMail(mailBean);
 		 		} catch (MessagingException e) {
 		 			// TODO Auto-generated catch block
 		 			e.printStackTrace();
