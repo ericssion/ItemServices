@@ -46,9 +46,9 @@ public class FileUtils {
 	 *
 	 * @return the list
 	 */
-	public static Map<String,List<Request>> loadFiles() {
+	public static Map<String,List<String>> loadFiles() {
 		
-		Map<String,List<Request>> response=new HashMap<String,List<Request>>();
+		Map<String,List<String>> response=new HashMap<String,List<String>>();
 		
 		log.debug("entered into FileUtils.loadFiles()");
 		ObjectMapper mapper = new ObjectMapper();
@@ -59,7 +59,7 @@ public class FileUtils {
 			
 			List<FileBean> filesInFolder=FtpUtils.getFilesFromFtpServer();
 			for(FileBean fileBean : filesInFolder) {
-				List<Request> requestList=new ArrayList<Request>();
+				List<String> requestList=new ArrayList<String>();
 				
 				String line;
 				log.info("loding the files from the Directory");
@@ -68,8 +68,9 @@ public class FileUtils {
 					reader = Files.newBufferedReader(Paths.get(fileBean.getFilepath()));
 					
 					 while ((line = reader.readLine()) != null) {
-						 request=mapper.readValue(line, Request.class);
-						 requestList.add(request);
+						 
+						// request=mapper.readValue(line, Request.class);
+						 requestList.add(line);
 					    }
 
 				} catch (IOException e) {

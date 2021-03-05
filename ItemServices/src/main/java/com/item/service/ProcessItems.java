@@ -53,18 +53,19 @@ public class ProcessItems {
  public void invoke(){
 	 
 	 log.debug("ENTERING invoke method");
-	 Map<String,List<Request>> requestMap  = FileUtils.loadFiles();
+	 Map<String,List<String>> requestMap  = FileUtils.loadFiles();
 	 
 	 requestMap.forEach((fileName, requestList) -> {
 		 if(requestList.size()>0) {
 			 
-				for (Iterator<Request> iterator = requestList.iterator(); iterator.hasNext();) {
-					Request request = (Request) iterator.next();
+				for (Iterator<String> iterator = requestList.iterator(); iterator.hasNext();) {
+					String request = iterator.next();
 					 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 					 String json=null;
 						try {
 							json = ow.writeValueAsString(request);
 							log.info("request : "+json);
+							System.out.println("request : "+json);
 						} catch (JsonProcessingException e) {
 							log.error("unable to convert  the request to String :  "+e.getMessage(),e);
 						}
@@ -79,7 +80,7 @@ public class ProcessItems {
 		        mailBean.setFileName(fileName);
 		     
 		         try {
-		 			MailMethods.sendStatusMail(mailBean);
+		 			MailMethods.sendGMail(mailBean);
 		 		} catch (MessagingException e) {
 		 			// TODO Auto-generated catch block
 		 			e.printStackTrace();
@@ -90,21 +91,13 @@ public class ProcessItems {
  }
  
  
- public void postJson(Request req)  {	
+ public void postJson(String json)  {	
 
 	 
 	 HttpPut  request = new HttpPut(PropertyUtils.getApiUrl());
 	 request.setHeader("Accept", "application/json");
 	 request.setHeader("Content-type", "application/json");
 	 String result=null;
-	 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-	 String json=null;
-	try {
-		json = ow.writeValueAsString(req);
-	} catch (JsonProcessingException e1) {
-		// TODO Auto-generated catch block
-		log.error("not able send the request to API"+e1.getMessage(),e1);
-	}
 	 try {
 		request.setEntity(new StringEntity(json));
 	} catch (UnsupportedEncodingException e1) {
