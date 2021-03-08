@@ -3,6 +3,7 @@ package com.item.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -80,59 +81,14 @@ public final class MailMethods
 	
 	private static String fatalErrorBody(String fileName) {
 		
-		return "The submitted file is not correctly formatted for use by the KaiNexus Person API: "+fileName+".";
+		String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+		
+		
+		return "The submitted file is not correctly formatted for use by the KaiNexus Person API: "+fileName+"_"+timeStamp+".";
 		
 	}
 	
 
-	public static void sendGMail(MailBean mailBean)
-		    throws MessagingException{
-		
-		final String username = "prasad.javastuff@gmail.com";
-        final String password = "Gudavalli_21";
-		
-		Properties prop = new Properties();
-		
-		   prop.put("mail.smtp.host", "smtp.gmail.com");
-	        prop.put("mail.smtp.port", "587");
-	        prop.put("mail.smtp.auth", "true");
-	        prop.put("mail.smtp.starttls.enable", "true"); //TLS
-	        
-	        Session session = Session.getInstance(prop,
-	                new javax.mail.Authenticator() {
-	                    protected PasswordAuthentication getPasswordAuthentication() {
-	                        return new PasswordAuthentication(username, password);
-	                    }
-	                });
-		
-		
-		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress("prasad.javastuff@gmail.com"));
-		message.setRecipients(
-		  Message.RecipientType.TO, InternetAddress.parse("prasadbabugudavalli@gmail.com"));
-		
-		message.setSubject(PropertyUtils.getMailStatusSubject());
-		 
-		MimeBodyPart body = new MimeBodyPart();
-		body.setText(statusMailBody(mailBean));
-		
-		MimeBodyPart logfile = new MimeBodyPart();
-		
-		
-		try {
-			FileUtils.createFile(mailBean);
-			logfile.attachFile(FileUtils.getfilePath());
-			Multipart multipart = new MimeMultipart();
-			multipart.addBodyPart(body);
-			multipart.addBodyPart(logfile);
-			message.setContent(multipart);
-			Transport.send(message);
-			FileUtils.deleteFile();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	
 	
 	public static void sendMail(String asSubject, String asMessage)
@@ -198,43 +154,4 @@ public final class MailMethods
 	}
 	
 	
-	public static void sendGMail(String fileName)
-		    throws MessagingException{
-		
-		final String username = "prasad.javastuff@gmail.com";
-        final String password = "Gudavalli_21";
-		
-		Properties prop = new Properties();
-		
-		   prop.put("mail.smtp.host", "smtp.gmail.com");
-	        prop.put("mail.smtp.port", "587");
-	        prop.put("mail.smtp.auth", "true");
-	        prop.put("mail.smtp.starttls.enable", "true"); //TLS
-	        
-	        Session session = Session.getInstance(prop,
-	                new javax.mail.Authenticator() {
-	                    protected PasswordAuthentication getPasswordAuthentication() {
-	                        return new PasswordAuthentication(username, password);
-	                    }
-	                });
-		
-		
-		Message message = new MimeMessage(session);
-		message.setFrom(new InternetAddress("prasad.javastuff@gmail.com"));
-		message.setRecipients(
-		  Message.RecipientType.TO, InternetAddress.parse("prasadbabugudavalli@gmail.com"));
-		
-		message.setSubject(PropertyUtils.getMailFatalSubject());
-		 
-		MimeBodyPart mimeBodyPart = new MimeBodyPart();
-		mimeBodyPart.setContent(fatalErrorBody(fileName	), "text/html");
-		 
-		Multipart multipart = new MimeMultipart();
-		multipart.addBodyPart(mimeBodyPart);
-		 
-		message.setContent(multipart);
-		 
-		Transport.send(message);
-		
-	}
 }
