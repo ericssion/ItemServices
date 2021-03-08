@@ -68,7 +68,7 @@ public final class MailMethods
 	
 	private static String statusMailBody(MailBean mailBean) {
 		
-		String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+		String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(FtpUtils.getFileTimeStamp());
 		
 		String msg="The KaiNexus Person API returned errors for the batch initiated "+timeStamp+".\r\n"
 		+ "Input file: "+mailBean.getFileName()+"\r\n"

@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -30,7 +32,8 @@ public class FtpUtils {
   private static JSch stpsClient;
   private static FTPClient ftpClient;
   
-
+  private static Date fileTimeStamp;
+  
   private static JSch loadSftpProperty() {
 
     if (null == stpsClient) {
@@ -103,12 +106,14 @@ public class FtpUtils {
         if (ftpFile.getType() == FTPFile.FILE_TYPE) {
         	
           log.info("copying files from  server : " + ftpFile.getName()+" to "+PropertyUtils.getBackupDir() + ftpFile.getName());
+          
           OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(PropertyUtils.getBackupDir() + ftpFile.getName()));
           boolean success = ftpClient.retrieveFile(ftpFile.getName(), outputStream);
           outputStream.close();
           //file copy success add to file list and  delete the file
 			  if (success) { 
 				  log.info("copying sucessful");
+				  fileTimeStamp=Calendar.getInstance().getTime();
 				  FileBean fileBean=new FileBean();
 				  fileBean.setFilename(ftpFile.getName());
 				  fileBean.setFilepath(PropertyUtils.getBackupDir() +ftpFile.getName());
@@ -156,7 +161,11 @@ public class FtpUtils {
     return fileList;
   }
 
-  @SuppressWarnings("unchecked")
+  public static Date getFileTimeStamp() {
+	return fileTimeStamp;
+}
+
+@SuppressWarnings("unchecked")
   public static List < String > getFilesFromSftpServer() {
 
     List < String > filesList = new ArrayList < String > ();
