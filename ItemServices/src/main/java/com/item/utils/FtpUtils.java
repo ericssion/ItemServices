@@ -5,13 +5,17 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -95,7 +99,9 @@ public class FtpUtils {
       ftpClient.login(PropertyUtils.getRemoteUser(), PropertyUtils.getRemoteKey());
       ftpClient.enterLocalPassiveMode();
       ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-      ftpClient.changeWorkingDirectory(PropertyUtils.getRemoteDirectory());
+      ftpClient.changeWorkingDirectory(PropertyUtils.getRemoteoutDirectory());
+      
+      ftpClient.storeUniqueFile(null);
       
       FTPFile[] files = ftpClient.listFiles();
       if(files.length==0)
@@ -118,12 +124,12 @@ public class FtpUtils {
 				  fileBean.setFilename(ftpFile.getName());
 				  fileBean.setFilepath(PropertyUtils.getBackupDir() +ftpFile.getName());
 				  fileList.add(fileBean);
-			  Boolean deletestatus= ftpClient.deleteFile(PropertyUtils.getRemoteDirectory()+ftpFile.getName());
+			  Boolean deletestatus= ftpClient.deleteFile(PropertyUtils.getRemoteoutDirectory()+ftpFile.getName());
 			  if(deletestatus) {
 			  log.info("delete sucessful");
 			  }else {
 				  try {
-			            MailMethods.sendMail("unable to delete the file from FTP Server", "unable to delete the file from FTP Server from "+PropertyUtils.getRemoteDirectory()+ftpFile.getName());
+			            MailMethods.sendMail("unable to delete the file from FTP Server", "unable to delete the file from FTP Server from "+PropertyUtils.getRemoteoutDirectory()+ftpFile.getName());
 			          } catch(Exception e) {
 			            log.error("Failed to send Mail " + e);
 			          }
@@ -184,7 +190,7 @@ public class FtpUtils {
       channelSftp = (ChannelSftp) jschSession.openChannel("sftp");
 
       channelSftp.connect();
-      channelSftp.cd(PropertyUtils.getRemoteDirectory());
+      channelSftp.cd(PropertyUtils.getRemoteoutDirectory());
       Vector < ChannelSftp.LsEntry > list = channelSftp.ls("*.json");
 
       for (ChannelSftp.LsEntry entry: list) {
@@ -216,5 +222,82 @@ public class FtpUtils {
     }
     return filesList;
   }
+
+	
+public static void saveFiletoFtpServer(String response) {
+	  log.debug("entered into FtpUtils.saveFiletoFtpServer()");
+	  
+  loadFtpProperty();
+  int reply;
+  try {
+   log.info("Connecting to  server " + PropertyUtils.getRemoteServer() + "....");
+       	
+    ftpClient.connect(PropertyUtils.getRemoteServer(), 21);
+
+    log.info("Connected to Server .");
+   
+    reply = ftpClient.getReplyCode();
+
+    if (!FTPReply.isPositiveCompletion(reply)) {
+      ftpClient.disconnect();
+      log.error("FTP server refused connection.");
+
+      String asSubject = "Item Service FTP Server Issue ";
+      String asMessage = "FTP server refused connection";
+      try {
+        MailMethods.sendMail(asSubject, asMessage);
+      } catch(Exception e) {
+        log.error("Failed to send Mail "+e.getMessage(),  e);
+      }
+
+      System.exit(1);
+    }
+    log.info("login with user " + PropertyUtils.getRemoteUser() + ".");
+    ftpClient.login(PropertyUtils.getRemoteUser(), PropertyUtils.getRemoteKey());
+    ftpClient.enterLocalPassiveMode();
+    ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+    ftpClient.changeWorkingDirectory(PropertyUtils.getRemoteoutDirectory());
+    
+    InputStream is= IOUtils.toInputStream(response, "UTF-8");
+    
+
+	String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+    String fileName="KaiNexus_Userlist_"+timeStamp+".json";
+    
+    boolean done = ftpClient.storeFile(fileName,is);
+
+    if (done) {
+    	log.info("The  file is uploaded successfully.");
+    }
+
+    ftpClient.logout();
+    log.info("logout from server");
+  } catch(IOException e) {
+    log.error("not able to save file to server "+e.getMessage(),e);
+    try {
+        MailMethods.sendMail("not able to save file to FTP server", "not able to save file to FTP server"+e.getMessage());
+      } catch(Exception e1) {
+        log.error("Failed to send Mail " + e1);
+      }
+  } finally {
+    if (ftpClient.isConnected()) {
+      try {
+        ftpClient.disconnect();
+        log.info(" server Disconnected ");
+      } catch(IOException ioe) {
+        String asSubject = "Item Service FTP Server disconnect Issue ";
+        String asMessage = "not able to disconnect from FTP server";
+        try {
+          MailMethods.sendMail(asSubject, asMessage);
+        } catch(Exception e) {
+          log.error("Failed to send Mail " + e);
+        }
+      }
+    }
+  }
+  log.debug("exiting into FtpUtils.saveFiletoFtpServer()");
+  
+}
+
 
 }

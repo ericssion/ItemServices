@@ -79,13 +79,28 @@ public final class PropertyUtils {
 		return props.getProperty("mail.to");
 	}
 	
-
-	public static String getRemoteDirectory() {
+	public static String getMailSubject() {
 		Properties props= 	PropertyUtils.loadProperty();
-		
-		return props.getProperty("remote.dir");
+		return props.getProperty("userlist.mail.subject");
 	}
 	
+	public static String getMailbody() {
+		Properties props= 	PropertyUtils.loadProperty();
+		return props.getProperty("userlist.mail.body");
+	}
+	
+
+	public static String getRemoteInDirectory() {
+		Properties props= 	PropertyUtils.loadProperty();
+		
+		return props.getProperty("remote.in");
+	}
+	
+	public static String getRemoteoutDirectory() {
+		Properties props= 	PropertyUtils.loadProperty();
+		
+		return props.getProperty("remote.out");
+	}
 	
 	public static String getRemoteServer() {
 		Properties props= 	PropertyUtils.loadProperty();
@@ -110,7 +125,6 @@ public final class PropertyUtils {
 		return props.getProperty("items.user");
 	}
 	
-	
 	public static String getApiKey() {
 		Properties props= 	PropertyUtils.loadProperty();
 		return props.getProperty("items.key");
@@ -120,6 +134,17 @@ public final class PropertyUtils {
 		Properties props= PropertyUtils.loadProperty();
 		return props.getProperty("items.url");
 	}
+	
+	public static String getUserListApiKey() {
+		Properties props= 	PropertyUtils.loadProperty();
+		return props.getProperty("userlist.key");
+	}
+	
+	public static String getUserListApiUrl() {
+		Properties props= PropertyUtils.loadProperty();
+		return props.getProperty("userlist.url");
+	}
+	
 	
 	public static String getMailStatusSubject() {
 		Properties props= 	PropertyUtils.loadProperty();
@@ -136,6 +161,17 @@ public final class PropertyUtils {
 		Properties props= 	PropertyUtils.loadProperty();
 		return props.getProperty("mail.cc");
 	}
+	
+	public static String getUserListMailSubject() {
+		Properties props= 	PropertyUtils.loadProperty();
+		return props.getProperty("userlist.mail.subject");
+	}
+	
+	public static String getUserListMailBody() {
+		Properties props= 	PropertyUtils.loadProperty();
+		return props.getProperty("userlist.mail.body");
+	}
+	
 	
 	public static String getBackupDir() {
 		Properties props=PropertyUtils.loadProperty();

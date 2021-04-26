@@ -16,6 +16,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -25,14 +26,12 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.item.bean.MailBean;
 import com.item.request.JsonResponse;
-import com.item.request.Request;
 import com.item.utils.FileUtils;
+import com.item.utils.FtpUtils;
 import com.item.utils.MailMethods;
 import com.item.utils.PropertyUtils;
 
@@ -78,7 +77,14 @@ public class ProcessItems {
 		 		} 
 		 }
 		});
-	 
+	 //get the details and save to server
+	 FtpUtils.saveFiletoFtpServer(getUserList());
+	 try {
+		 MailMethods.sendMail(PropertyUtils.getUserListMailSubject(), PropertyUtils.getUserListMailBody());
+	 } catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
  }
  
  
@@ -143,6 +149,55 @@ public class ProcessItems {
 	 }
  }
 
+ 
+ public String getUserList()  {	
+
+	 
+	 HttpGet   request = new HttpGet (PropertyUtils.getUserListApiUrl());
+	 request.setHeader("Accept", "application/json");
+	 request.setHeader("Content-type", "application/json");
+	 String result=null;
+	
+	    CredentialsProvider provider = new BasicCredentialsProvider();
+	     provider.setCredentials(
+	                AuthScope.ANY,
+	                new UsernamePasswordCredentials(PropertyUtils.getApiUser(), PropertyUtils.getUserListApiKey())
+	        );
+	
+	     CloseableHttpClient httpClient = HttpClientBuilder.create()
+	             .setDefaultCredentialsProvider(provider).
+	             build();
+		 CloseableHttpResponse response = null;
+		try {
+			response = httpClient.execute(request);
+		} catch (IOException e) {
+			log.error("not able send the request to API"+e.getMessage(),e);
+			 sendMail("not able send the request to API", e.getMessage());
+		}
+
+	    	if( response.getStatusLine().getStatusCode()==200) {
+	    		HttpEntity entity = response.getEntity();
+	    		
+	    		
+	    		 if (entity != null) {
+	    	          // return it as a String
+	    	           try {
+	    					result = EntityUtils.toString(entity);
+	    					
+	    				} catch (ParseException|IOException e) {
+	    					log.error("unable to parse the response "+e.getMessage(),e);
+	    					sendMail("unable to parse the response", e.getMessage());
+	    				} 
+	    	          log.info("Recieve Suessfully");
+	    	       
+	    	          log.info("got Response : "+result);
+	    	        
+	    			 }
+	    	}
+	    	return result;
+	 }
+ 
+ 
  private void sendMail(String asSubject,String asMessage) {
 	 try {
   		MailMethods.sendMail(asSubject, asMessage);
