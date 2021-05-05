@@ -58,16 +58,6 @@ public final class PropertyUtils {
 		return Integer.parseInt(props.getProperty("app.frequency"));
 	}
 	
-	public static String getPatientFilesDir() {
-		Properties props= 	PropertyUtils.loadProperty();
-		return props.getProperty("item.files.directory");
-	}
-
-	public static String getCSVFilesPath() {
-		Properties props= 	PropertyUtils.loadProperty();
-		return props.getProperty("patient.csv.path");
-	}
-	
 	
 	public static String getMailFrom() {
 		Properties props= 	PropertyUtils.loadProperty();
@@ -135,10 +125,6 @@ public final class PropertyUtils {
 		return props.getProperty("items.url");
 	}
 	
-	public static String getUserListApiKey() {
-		Properties props= 	PropertyUtils.loadProperty();
-		return props.getProperty("userlist.key");
-	}
 	
 	public static String getUserListApiUrl() {
 		Properties props= PropertyUtils.loadProperty();

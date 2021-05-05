@@ -51,9 +51,9 @@ public class FileUtils {
 		Map<String,List<String>> response=new HashMap<String,List<String>>();
 		
 		log.debug("entered into FileUtils.loadFiles()");
-		ObjectMapper mapper = new ObjectMapper();
+		//ObjectMapper mapper = new ObjectMapper();
 		
-		Request request=null;
+		//Request request=null;
 		
 		BufferedReader reader=null;
 			

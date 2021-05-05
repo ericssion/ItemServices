@@ -78,13 +78,15 @@ public class ProcessItems {
 		 }
 		});
 	 //get the details and save to server
-	 FtpUtils.saveFiletoFtpServer(getUserList());
-	 try {
-		 MailMethods.sendMail(PropertyUtils.getUserListMailSubject(), PropertyUtils.getUserListMailBody());
-	 } catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	 if(!requestMap.isEmpty()) {
+		 
+		 FtpUtils.saveFiletoFtpServer(getUserList());
+		 try {
+			 MailMethods.sendMail(PropertyUtils.getUserListMailSubject(), PropertyUtils.getUserListMailBody());
+		 } catch (MessagingException e) {
+				e.printStackTrace();
+			}
+	 }
  }
  
  
@@ -161,7 +163,7 @@ public class ProcessItems {
 	    CredentialsProvider provider = new BasicCredentialsProvider();
 	     provider.setCredentials(
 	                AuthScope.ANY,
-	                new UsernamePasswordCredentials(PropertyUtils.getApiUser(), PropertyUtils.getUserListApiKey())
+	                new UsernamePasswordCredentials(PropertyUtils.getApiUser(), PropertyUtils.getApiKey())
 	        );
 	
 	     CloseableHttpClient httpClient = HttpClientBuilder.create()
@@ -190,7 +192,7 @@ public class ProcessItems {
 	    				} 
 	    	          log.info("Recieve Suessfully");
 	    	       
-	    	          log.info("got Response : "+result);
+	    	       //   log.info("got Response : "+result);
 	    	        
 	    			 }
 	    	}

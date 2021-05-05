@@ -101,11 +101,11 @@ public class FtpUtils {
       ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
       ftpClient.changeWorkingDirectory(PropertyUtils.getRemoteoutDirectory());
       
-      ftpClient.storeUniqueFile(null);
       
       FTPFile[] files = ftpClient.listFiles();
       if(files.length==0)
       log.info("No files are there to process in FTP Server : " + PropertyUtils.getRemoteServer() + ".");
+      
       
       for (FTPFile ftpFile: files) {
 
@@ -125,6 +125,7 @@ public class FtpUtils {
 				  fileBean.setFilepath(PropertyUtils.getBackupDir() +ftpFile.getName());
 				  fileList.add(fileBean);
 			  Boolean deletestatus= ftpClient.deleteFile(PropertyUtils.getRemoteoutDirectory()+ftpFile.getName());
+System.out.println(PropertyUtils.getRemoteoutDirectory()+ftpFile.getName());
 			  if(deletestatus) {
 			  log.info("delete sucessful");
 			  }else {
@@ -142,7 +143,7 @@ public class FtpUtils {
     } catch(IOException e) {
       log.error("not able to copy file from server "+e.getMessage(),e);
       try {
-          MailMethods.sendMail("not able to copy file from FTP server", "not able to copy file from FTP server"+e.getMessage());
+         // MailMethods.sendMail("not able to copy file from FTP server", "not able to copy file from FTP server"+e.getMessage());
         } catch(Exception e1) {
           log.error("Failed to send Mail " + e1);
         }
@@ -256,7 +257,7 @@ public static void saveFiletoFtpServer(String response) {
     ftpClient.login(PropertyUtils.getRemoteUser(), PropertyUtils.getRemoteKey());
     ftpClient.enterLocalPassiveMode();
     ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-    ftpClient.changeWorkingDirectory(PropertyUtils.getRemoteoutDirectory());
+    ftpClient.changeWorkingDirectory(PropertyUtils.getRemoteInDirectory());
     
     InputStream is= IOUtils.toInputStream(response, "UTF-8");
     
