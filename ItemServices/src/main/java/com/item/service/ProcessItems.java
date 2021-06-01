@@ -80,11 +80,11 @@ public class ProcessItems {
 	 if(!requestMap.isEmpty()) {
 		 
 		 FtpUtils.saveFiletoFtpServer(getUserList());
-		 try {
+		/* try {
 			 MailMethods.sendMail(PropertyUtils.getUserListMailSubject(), PropertyUtils.getUserListMailBody());
 		 } catch (MessagingException e) {
 				e.printStackTrace();
-			}
+			}*/
 	 }
  }
  
