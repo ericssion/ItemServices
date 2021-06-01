@@ -39,19 +39,22 @@ public final class MailMethods
 		Session session = Session.getDefaultInstance(prop);  
 		
 		Message message = new MimeMessage(session);
+		MimeBodyPart body = new MimeBodyPart();
 		message.setFrom(new InternetAddress(asFrom));
 		message.setRecipients(
 		  Message.RecipientType.TO, InternetAddress.parse(asTo));
 		message.setRecipients(
 				  Message.RecipientType.CC, InternetAddress.parse(asCC));
 		
-		message.setSubject(PropertyUtils.getMailStatusSubject());
-		 
-		MimeBodyPart body = new MimeBodyPart();
-		body.setText(statusMailBody(mailBean));
+		if(mailBean.getErrorRcdcnt()>0) {
+			message.setSubject(PropertyUtils.getMailErrorSubject());
+			body.setText(errorMailBody(mailBean));
+		}else {
+			message.setSubject(PropertyUtils.getMailSucessSubject());
+			body.setText(sucessMailBody(mailBean));
+		}
 		
 		MimeBodyPart logfile = new MimeBodyPart();
-		
 		
 		try {
 			FileUtils.createFile(mailBean);
@@ -67,7 +70,17 @@ public final class MailMethods
 		}
 	}
 	
-	private static String statusMailBody(MailBean mailBean) {
+	private static String sucessMailBody(MailBean mailBean) {
+		
+		String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(FtpUtils.getFileTimeStamp());
+		
+		String msg="The KaiNexus Person API import was successful for the batch initiated "+timeStamp+".\r\n"
+		+ "Input file: "+mailBean.getFileName()+"\r\n"
+		+ "Records Created or Updated: "+mailBean.getSucessRcdCnt()+"\r\n";
+		return msg;
+	}
+	
+	private static String errorMailBody(MailBean mailBean) {
 		
 		String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(FtpUtils.getFileTimeStamp());
 		
@@ -109,7 +122,7 @@ public final class MailMethods
 		message.setRecipients(
 				  Message.RecipientType.CC, InternetAddress.parse(asCC));
 		
-		message.setSubject(PropertyUtils.getMailStatusSubject());
+		message.setSubject(asSubject);
 		 
 		MimeBodyPart mimeBodyPart = new MimeBodyPart();
 		mimeBodyPart.setContent(asMessage, "text/html");

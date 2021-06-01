@@ -72,7 +72,6 @@ public class ProcessItems {
 		         try {
 		 			MailMethods.sendStatusMail(mailBean);
 		 		} catch (MessagingException e) {
-		 			// TODO Auto-generated catch block
 		 			e.printStackTrace();
 		 		} 
 		 }

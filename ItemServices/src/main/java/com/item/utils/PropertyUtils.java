@@ -132,7 +132,12 @@ public final class PropertyUtils {
 	}
 	
 	
-	public static String getMailStatusSubject() {
+	public static String getMailErrorSubject() {
+		Properties props= 	PropertyUtils.loadProperty();
+		return props.getProperty("mail.error");
+	}
+	
+	public static String getMailSucessSubject() {
 		Properties props= 	PropertyUtils.loadProperty();
 		return props.getProperty("mail.status");
 	}

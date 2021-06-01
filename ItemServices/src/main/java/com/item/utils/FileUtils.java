@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.item.bean.FileBean;
 import com.item.bean.MailBean;
-import com.item.request.Request;
 
 
 /**
@@ -51,12 +50,9 @@ public class FileUtils {
 		Map<String,List<String>> response=new HashMap<String,List<String>>();
 		
 		log.debug("entered into FileUtils.loadFiles()");
-		//ObjectMapper mapper = new ObjectMapper();
-		
-		//Request request=null;
 		
 		BufferedReader reader=null;
-			
+		boolean fatalError=false; 	
 			List<FileBean> filesInFolder=FtpUtils.getFilesFromFtpServer();
 			for(FileBean fileBean : filesInFolder) {
 				List<String> requestList=new ArrayList<String>();
@@ -65,13 +61,32 @@ public class FileUtils {
 				log.info("loding the files from the Directory");
 				
 				try {
+					
 					reader = Files.newBufferedReader(Paths.get(fileBean.getFilepath()));
 					
 					 while ((line = reader.readLine()) != null) {
 						 
 						// request=mapper.readValue(line, Request.class);
-						 requestList.add(line);
+						 if(isValidJSON(line)) {
+							 requestList.add(line);
+						 }else {
+							 fatalError=true;
+							 break;
+						 }
+						 
 					    }
+					 
+					 if(fatalError) {
+						 try {
+						  		MailMethods.sendFatalMail(fileBean.getFilename());
+						  		response.clear();
+						  		break;
+						  	} catch (Exception ex) {
+						  		log.error("Failed to send Mail "+ex.getMessage(),ex);
+							}
+					 }
+					 
+					 
 
 				} catch (IOException e) {
 					 log.error("not able to read and parse the files from the "+fileBean.getFilepath()+" directory "+e.getMessage(),e);
@@ -91,6 +106,17 @@ public class FileUtils {
 		
 	}
     
+	
+	 public static boolean isValidJSON(String line ) {
+		    try {
+		       final ObjectMapper mapper = new ObjectMapper();
+		       mapper.readTree(line);
+		       return true;
+		    } catch (IOException e) {
+		       return false;
+		    }
+		  }
+	
 	public static String getfilePath() {
 		return filePath;
 	}
@@ -100,6 +126,7 @@ public class FileUtils {
 		String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 		filePath = FileSystems.getDefault().getPath("").toAbsolutePath().toString()+"\\KaiNexus_Error(s)_"+timeStamp+".log";
 		
+		System.out.println(" File Path :"+filePath);
 		StringBuffer buffer=new StringBuffer();
 		
 		mailBean.getErrorMap().forEach((request,response)->{

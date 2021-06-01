@@ -125,7 +125,7 @@ public class FtpUtils {
 				  fileBean.setFilepath(PropertyUtils.getBackupDir() +ftpFile.getName());
 				  fileList.add(fileBean);
 			  Boolean deletestatus= ftpClient.deleteFile(PropertyUtils.getRemoteoutDirectory()+ftpFile.getName());
-System.out.println(PropertyUtils.getRemoteoutDirectory()+ftpFile.getName());
+			  System.out.println(PropertyUtils.getRemoteoutDirectory()+ftpFile.getName());
 			  if(deletestatus) {
 			  log.info("delete sucessful");
 			  }else {
@@ -263,8 +263,8 @@ public static void saveFiletoFtpServer(String response) {
     
 
 	String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-    String fileName="KaiNexus_Userlist_"+timeStamp+".json";
-    
+    //String fileName="KaiNexus_Userlist_"+timeStamp+".json";
+	String fileName="userList.json";
     boolean done = ftpClient.storeFile(fileName,is);
 
     if (done) {
