@@ -139,7 +139,7 @@ public final class PropertyUtils {
 	
 	public static String getMailSucessSubject() {
 		Properties props= 	PropertyUtils.loadProperty();
-		return props.getProperty("mail.status");
+		return props.getProperty("mail.sucess");
 	}
 	
 	public static String getMailFatalSubject() {

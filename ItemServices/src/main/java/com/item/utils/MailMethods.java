@@ -58,10 +58,12 @@ public final class MailMethods
 		
 		try {
 			FileUtils.createFile(mailBean);
-			logfile.attachFile(FileUtils.getfilePath());
 			Multipart multipart = new MimeMultipart();
+			if(mailBean.getErrorRcdcnt()>0) {
+				logfile.attachFile(FileUtils.getfilePath());
+				multipart.addBodyPart(logfile);
+			}
 			multipart.addBodyPart(body);
-			multipart.addBodyPart(logfile);
 			message.setContent(multipart);
 			Transport.send(message);
 			FileUtils.deleteFile();
